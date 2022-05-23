@@ -65,3 +65,26 @@ Envío de notificaciones (en el correo, estos llegan cuando se refresca la pági
 
 
 ## Introducción a Kafka parte II
+### Transmisión de datos en Kafka
+Kafka transporta bytes por lo que los registros se deben convertir a bytes. Para ello se utilizan serializadores, concertamente, Kafka hace uso de tres:
+- IntegerSerializer: Únicamente datos de tipo entero
+- StringSerializer: El serializador por defecto y se utiliza para cadenas de caracteres
+- ByteStreamSerializer: Cualquier cosa que vaya en array de bytes
+
+Existen serializadores para serialización personalizada
+- Thrift: Biblioteca de codificación binaria que requiere de un esquema para todo dato codificado
+- Protobuf: Igual que Thrift, pero un proyecto más pequeño
+- Avro: Se creó porque Thrift no era una buena opción para los casos de uso de Hadoop
+
+### Algoritmos de compresión
+- GZIP
+- Snappy
+- LZ4
+
+### Herramientas de consulta SQL para apache Kafka
+- KSQL: Motor SQL de streaming para Apache Kafka
+- Presto: Motor de consultas SQL distribuidas que puede set utilizado con tamaños de datos desde gigabytes hasta petabytes.
+
+Por la facilidad de Presto para coenctarse con distintas bases de datos, es la herramienta que utiliza Kafka para las consultas.
+
+## PrestoDB
