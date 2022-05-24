@@ -122,3 +122,6 @@ Presto ejecuta las sentencias de SQL y las convierte en consultas que se ejecuta
 **Operador:** Lo operadores cogen datos, los transforman y producen nuevos datos. Como el filtrado.
 
 **Intercambiador:** Transfieren datos entre los nodos de Presto. 
+
+## Spark Streaming
+
