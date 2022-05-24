@@ -88,3 +88,37 @@ Existen serializadores para serialización personalizada
 Por la facilidad de Presto para coenctarse con distintas bases de datos, es la herramienta que utiliza Kafka para las consultas.
 
 ## PrestoDB
+Es un sistema distribuido que se ejecuta en un grupo de máquinas que incluye un coordinador y uno o varios trabajadores, y fue diseñada para consultar de manera eficiente grandes cantidades de datos. 
+
+### Conceptos
+Hay dos tipos de servidores de Presto: coordinadores y workers.
+ **Coordinador:** Analiza las declaraciones, planifica consultas y administra los nodos de trabajo. Es el cerebro de una instalación Presto.
+El coordinador realiza un seguimiento de la actividad de cada trabajador y coordina la ejecución de una consulta. 
+
+**Worker**: Es un servidor es responsable de ejecutar tareas y procesar datos. Los workers obtienen los datosde los conectores e imtercambian datos intermedios entre ellos. Luego, es el coordinador el que obtiene los resultados de los workers y devuelve los resultados finales al cliente. 
+
+### Fuentes de datos
+**Conector:** Es el que adapta Presto a fuentes de datos com Hive. Cada catálogo está asociado a un conector específico aunque es posible que un catágolo utilice el mismo conector para dos instancias diferentes de una base de datos. 
+
+**Catalogo:** Contiene esquemas y hace referencia a una fuente de datos a través de un conector. Por ejemplo un catálogo Hive para para conectarse a una fuente de datos de Hive y cada vez que se ejecuta una consulta SQL, la ejecución se hace en uno o más catálogos. 
+
+**Esquema:** Formas de organizar las tablas. Un catálogo junto a un esquema definen un conjunto de tablas que se pueden consultar.
+
+**Tabla:** La asignación de datos de origen a tablas está definida por el conector
+
+### Modelo de ejecución de consultas
+Presto ejecuta las sentencias de SQL y las convierte en consultas que se ejecutan en un grupo distribuido de coordinadores y trabajadores.
+
+**Sentencias:** Presto de refiere a sentencia como cláusulas, expresiones y predicados. 
+
+**Consultas:** La sentencia es el texto SQL y la consulta es cuando la sentencia se lleva a cabo.
+
+**Etapa:** La consulta se ejecuta dividiendola en jerarquía de etapas. 
+
+**Tarea:** Las etapas en sí mismas no se ejecutan en los workers sino su respectiva división de tareas.
+
+**División:** Supongo que será que las tareas se dividen para hacer uso de varios workers (de forma distribuida)
+
+**Operador:** Lo operadores cogen datos, los transforman y producen nuevos datos. Como el filtrado.
+
+**Intercambiador:** Transfieren datos entre los nodos de Presto. 
