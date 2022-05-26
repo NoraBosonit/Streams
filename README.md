@@ -164,7 +164,36 @@ Spark también proporciona cálculos de ventana con los Dstreams. Algunas son:
 - saveAsHaddop
 - foreachRDD
 
-### Structured Streaming
+## Structured Streaming
 Es un motor de porcesamiento de flujo de datos construido en el motor Spark SQL el cual se encarga de ejecutar el Structured Straming de forma incremental e ir actualizando el resultado a medida que van llegando nuevos datos. Las consultas se ejecutan con latencias de 100 milisegundos con garantía de exactamente uno, aunque se ha introducido un nuevo procesamiento denominado Procesamiento continuo que alcanza latencias de 1 milisegundo con garantías de al menos uno.
 
 Structured Streaming en un Dataframe, pero a tiempo real. 
+Las **funetes** de entrada son Kafka, ficheros como HDFS o S3 y Socket. Mientras que los sumiders especifican el destino del conjunto de resultados de ese flujo. Estos son los sumideros permitidos:
+- Apache Kafka 0.10
+- Casi cualquier formato de archivo.
+- Un sumidero foreach para ejecutar el cálculo arbitrario en los registros de salida.
+- Un sumidero de consola para probar.
+- Un sumidero de memoria para depuración.
+
+Definir un **sumidero (sink)** también va acompañado de cómo queremos que Spark escriba los datos en ese sumidero; si queremos que añada toda la información en cada flujo o si sol queremos que añada la nueva información que va llegando. Los modos de salida son:
+- Append (solo agregar nuevos registros al receptor de salida)
+- Update (actualizar los registros modificados en su lugar)
+- Complete (reescribir la salida completa)
+
+Hay veces que para determiandos sinks hay algunos modos de salida que no tienen sentido. Si por cada tweet que se escriba, se tiene que crear una base de datos nueva, sería muy costoso, no tiene sentido. Por el contrario, en un banco el complete y update tiene sentido, pero el append no porque las claves se cambian cada cierto tiempo. 
+
+Los modos de salida definen cómo se emiten los datos, los **disparadores (triggers)** definen cuándo se miten los mismos, es decir cuándo se verifican los nuevos datos de entrada y se actualiza el resultado. Cada vez que acaba un proceso, el Structured Straming buscará nuevos registros de entrada, aunque Spark también admite triggers según el tiempo de procesamiento, es decir, cada vez que acabe un proceso buscar nuevos datos de los siguientes 3 milisegundos. Para esto hay dos ideas clave:
+- Datos de tiempo de evento: tiempo de evento significa campos de tiempo incrustados en los datos que indican fechas o tiempos de alta o modificación, por ejemplo. Por lo tanto, datos de tiempo de evento tiene su explicación en que los datos se procesan en función de este tiempo y no en función del orden de llegada (ya que puede haber retrasos)
+- Marcas de agua: permiten especificar qué tan tarde espera que llegue un dato. En cuánto se estima al demora máxima para volver a pedir el dato o darlo por perdido. 
+
+### Operaciones de Ventana en tiempo de evento
+Las agregaciones de una ventana en tiempo de evento son muy similares a las agregaciones por agrupación. Es decir group By col1 y sumo los valores de col2. En el caso de las agregaciones basadas en ventana, se agrupa por los valores del tiempo. Si tenemos una ventana deslizante de 5 segundos y queremos contar las palabras que llegan durante 10 segundos, tendremos: el número de palabras de 12:00 a 12:10 y como la ventana se desliza cada 5 segundos, también tendremos las palabras que han llegado de 12:05 a 12:15. 
+
+### Manejo de datos tardíos y marcas de agua
+La transmisión estructurada puede matener el estado intermedio de agregados durante un largo periodo de tiempo, por lo que los datos tardíos pueden actualizar los agregados de ventanas. Para saber durante cuánto tiempo es necesario mantener un estado intermedio y saber cuán se puede eliminar de memoria se utilizan marcas de agua. Una vez llegue un dato que supera la marca de agua, este se eliminará. 
+
+### Stream-static Joins
+Structured Streaming soporta joins entre streams y Datsets/Dataframes estáticos. 
+
+### Stream-Stream Joins
+Además, se pueden unir datasets/dataframes de streaming. Hay que tener en cuenta que alguna fila de un dataset se tenga que juntar con otra fila que aún no ha llegado. Por lo que se almacenan las entradas como estados de streams para poder hacer joins de estradas presentes con pasadas. 
